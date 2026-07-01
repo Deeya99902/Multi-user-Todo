@@ -1,13 +1,27 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 from django.shortcuts import HttpResponse
-from django.contrib.auth.forms import UserCreationForm
-
+from django.contrib.auth import authenticate , login as loginUser
+from django.contrib.auth.forms import UserCreationForm,AuthenticationForm
+from todo.forms import TodoForm
 
 def home(request):
-    return render(request,'home.html')
+    form = TodoForm()
+    return render(request,'home.html' , context={'form' : form})
+
 
 def login(request):
-    return render(request,'login.html')
+    if request.method == 'GET':
+        form = AuthenticationForm()
+        return render(request, 'login.html', context={"form": form})
+
+    form = AuthenticationForm(request, data=request.POST)
+    if form.is_valid():
+        user = form.get_user()
+        loginUser(request, user)
+        return redirect('home')
+
+    return render(request, 'login.html', context={"form": form})
+
 
 def signup(request):
     if request.method == 'GET':
@@ -20,10 +34,20 @@ def signup(request):
     else:
         print(request.POST)
         form = UserCreationForm(request.POST)
+        context ={
+         "form":form
+        }
         if form.is_valid():
-            return HttpResponse("Form is valid")
+            user=form.save()
+            print(user)
+            if user is not None:
+                return redirect('login')
+        
         else:
-            return HttpResponse("Form is invalid")
+            return render(request,'signup.html', context=context)
+        
+        
+           
     
 
 

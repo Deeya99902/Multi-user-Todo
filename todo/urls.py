@@ -6,7 +6,7 @@ from todo.views import home,login,signup
 
 
 urlpatterns = [
-    path('', home),
-     path('login', login),
-      path('signup', signup),
+    path('', home, name='home'),
+     path('login/', login, name='login'),
+      path('signup/', signup),
 ]
